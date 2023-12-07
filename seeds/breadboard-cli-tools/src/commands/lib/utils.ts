@@ -25,7 +25,7 @@ export const resolveFilePath = (file: string) => {
 };
 
 export const loadBoard = async (file: string) => {
-  const board = await Board.load(pathToFileURL(file).toString());
+  const board = await Board.load(file);
   return board;
 }
 
