@@ -40,7 +40,7 @@ export const resolveURL = (
     return true;
   }
   const result: ResolverResult = path
-    ? { type: "file", location: path, href }
+    ? { type: "file", location: hrefWithoutHash, href }
     : href
     ? { type: "fetch", location: hrefWithoutHash, href }
     : { type: "unknown", location: "", href };
@@ -52,7 +52,8 @@ export const loadFromFile = async (path: string) => {
   if (typeof globalThis.process === "undefined")
     throw new Error("Unable to use `path` when not running in node");
   const { readFile } = await import(/* @vite-ignore */ "node:fs/promises");
-  return JSON.parse(await readFile(path, "utf-8"));
+  const { fileURLToPath } = await import(/* @vite-ignore */ "node:url");
+  return JSON.parse(await readFile(fileURLToPath(path), "utf-8"));
 };
 
 export const loadWithFetch = async (url: string) => {

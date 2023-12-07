@@ -6,6 +6,9 @@
 
 import { Board } from '@google-labs/breadboard';
 import path from "path";
+import { pathToFileURL } from 'url';
+
+
 
 export const loadBoardFromModule = async (file: string) => {
   const board = (await import(file)).default;
@@ -22,7 +25,7 @@ export const resolveFilePath = (file: string) => {
 };
 
 export const loadBoard = async (file: string) => {
-  const board = await Board.load(file);
+  const board = await Board.load(pathToFileURL(file).toString());
   return board;
 }
 
