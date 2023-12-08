@@ -15,7 +15,7 @@ test("resolveURL resolves file URLs", (t) => {
   t.deepEqual(results, [
     {
       href: "file:///foo/baz",
-      location: "/foo/baz",
+      location: "file:///foo/baz",
       type: "file",
     },
   ]);
@@ -69,7 +69,7 @@ test("resolveURL resolves URLs with hashes", (t) => {
     t.deepEqual(results, [
       {
         href: "file:///foo/baz#qux",
-        location: "/foo/baz",
+        location: "file:///foo/baz",
         type: "file",
       },
     ]);
@@ -77,7 +77,7 @@ test("resolveURL resolves URLs with hashes", (t) => {
     t.deepEqual(results, [
       {
         href: "file:///foo/baz#qux",
-        location: "/foo/baz",
+        location: "file:///foo/baz",
         type: "file",
       },
       {
