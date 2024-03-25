@@ -11,21 +11,13 @@ import type {
   Edge,
   NodeValue,
 } from "@google-labs/breadboard";
-import type {
-  BoardDefinition,
-  BoardInputPorts,
-  BoardOutputPorts,
-} from "./board.js";
-import type { GenericBreadboardNodeInstance } from "./node.js";
-import { isOutputPortReference, OutputPortGetter } from "./port.js";
+import { OutputPortGetter } from "./port.js";
 
 /**
  * Serialize a Breadboard board to Breadboard Graph Language (BGL) so that it
  * can be executed.
  */
-export function serialize(
-  board: BoardDefinition<BoardInputPorts, BoardOutputPorts>
-): GraphDescriptor {
+export function serialize(board: SerializableBoard): GraphDescriptor {
   const nodes = new Map<object, NodeDescriptor>();
   const edges: Edge[] = [];
   const typeCounts = new Map<string, number>();
@@ -49,7 +41,7 @@ export function serialize(
     edges,
   };
 
-  function addNode(node: GenericBreadboardNodeInstance): string {
+  function addNode(node: SerializableNode): string {
     const descriptor = nodes.get(node);
     if (descriptor !== undefined) {
       return descriptor.id;
@@ -81,4 +73,45 @@ export function serialize(
     typeCounts.set(type, count + 1);
     return `${type}-${count}`;
   }
+}
+
+interface SerializableBoard {
+  inputs: Record<
+    string,
+    {
+      name: string;
+      node: SerializableNode;
+    }
+  >;
+  outputs: Record<
+    string,
+    {
+      name: string;
+      node: SerializableNode;
+    }
+  >;
+}
+
+interface SerializableNode {
+  type: string;
+  inputs: Record<string, SerializableInputPort>;
+  outputs: Record<string, SerializableOutputPort>;
+}
+
+interface SerializableInputPort {
+  value: unknown | SerializableOutputPort;
+}
+
+interface SerializableOutputPort {
+  node: SerializableNode;
+  name: string;
+  [OutputPortGetter]: SerializableOutputPort;
+}
+
+function isOutputPortReference(
+  value: unknown
+): value is SerializableOutputPort {
+  return (
+    typeof value === "object" && value !== null && OutputPortGetter in value
+  );
 }

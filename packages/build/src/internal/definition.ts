@@ -8,13 +8,8 @@ import type {
   NodeDescriberFunction,
   NodeHandlerFunction,
 } from "@google-labs/breadboard";
-import type { PortConfigMap, OutputPortReference, PortConfig } from "./port.js";
-import type { ConvertBreadboardType } from "./type-system/type.js";
+import type { PortConfigMap } from "./port.js";
 import type { CountUnion } from "./type-util.js";
-
-export type ValueOrOutputPort<CONFIG extends PortConfig> =
-  | ConvertBreadboardType<CONFIG["type"]>
-  | OutputPortReference<CONFIG>;
 
 /**
  * A more tightly constrained version of {@link NodeHandler}.

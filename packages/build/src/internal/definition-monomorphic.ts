@@ -104,7 +104,6 @@ class MonomorphicNodeInstance<
   readonly inputs: InputPorts<ISHAPE>;
   readonly outputs: OutputPorts<OSHAPE>;
   readonly type: string;
-  readonly #values: ValuesOrOutputPorts<ISHAPE>;
   readonly [OutputPortGetter]!: PrimaryOutputPort<OSHAPE>;
 
   constructor(
@@ -114,11 +113,10 @@ class MonomorphicNodeInstance<
     values: ValuesOrOutputPorts<ISHAPE>
   ) {
     this.type = name;
-    this.#values = values;
     this.inputs = Object.fromEntries(
       Object.entries(inputs).map(([name, config]) => [
         name,
-        new InputPort(config, name, this, values[name]),
+        new InputPort(config, name, this, values[name]!),
       ])
     ) as InputPorts<ISHAPE>;
     this.outputs = Object.fromEntries(

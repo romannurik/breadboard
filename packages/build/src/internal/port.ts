@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { ValueOrOutputPort } from "./definition.js";
 import type { GenericBreadboardNodeInstance } from "./node.js";
 import type {
   BreadboardType,
@@ -91,13 +90,13 @@ export class InputPort<I extends PortConfig> {
   readonly type: I["type"];
   readonly name: string;
   readonly node: GenericBreadboardNodeInstance;
-  readonly value?: ValueOrOutputPort<I>;
+  readonly value: ValueOrOutputPort2<I>;
 
   constructor(
     config: I,
     name: string,
     node: GenericBreadboardNodeInstance,
-    value: ValueOrOutputPort<I>
+    value: ValueOrOutputPort2<I>
   ) {
     this.type = config.type;
     this.name = name;
@@ -105,6 +104,14 @@ export class InputPort<I extends PortConfig> {
     this.value = value;
   }
 }
+
+export type ValueOrOutputPort2<T extends PortConfig> =
+  | {
+      raw: ConvertBreadboardType<T["type"]>;
+    }
+  | {
+      wired: OutputPortReference<{ type: T["type"] }>;
+    };
 
 /**
  * A Breadboard node port which sends values.
@@ -154,10 +161,9 @@ export type ConcreteValues<Ports extends PortConfigMap> = {
  * each port, or an output port for each port.
  */
 export type ValuesOrOutputPorts<Ports extends PortConfigMap> = {
-  [PortName in keyof Ports]:
-    | ConvertBreadboardType<Ports[PortName]["type"]>
-    | OutputPortReference<Ports[PortName]>;
+  [PortName in keyof Ports]: ValueOrOutputPort2<Ports[PortName]>;
 };
+
 export type PrimaryOutputPort<O extends PortConfigMap> =
   GetPrimaryPortType<O> extends never
     ? undefined

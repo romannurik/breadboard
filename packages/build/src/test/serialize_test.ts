@@ -6,12 +6,7 @@
 
 import { test } from "node:test";
 import { defineNodeType, anyOf } from "@breadboard-ai/build";
-import {
-  board,
-  type BoardDefinition,
-  type BoardInputPorts,
-  type BoardOutputPorts,
-} from "../internal/board.js";
+import { board } from "../internal/board.js";
 import { serialize } from "../internal/serialize.js";
 import assert from "node:assert/strict";
 import type { GraphDescriptor } from "@google-labs/breadboard";
@@ -104,58 +99,55 @@ test("serialize", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     backwards: backwards.outputs.backwards as any,
   });
-  const myBoard = board({}, { result: prompt.outputs.result });
-  assert.deepEqual(
-    serialize(
-      // TODO(aomarks) Should not need this cast
-      myBoard as object as BoardDefinition<BoardInputPorts, BoardOutputPorts>
-    ),
-    {
-      nodes: [
-        {
-          id: "input-0",
-          type: "input",
-          configuration: {
-            // TODO(aomarks) Schema
-          },
-        },
-        {
-          id: "output-0",
-          type: "output",
-          configuration: {
-            // TODO(aomarks) Schema
-          },
-        },
-        {
-          id: "templater-0",
-          type: "templater",
-          configuration: {
-            template: "The word {{forwards}} is {{backwards}} in reverse.",
-            forwards: "potato",
-          },
-        },
-        {
-          id: "reverseString-0",
-          type: "reverseString",
-          configuration: {
-            forwards: "potato",
-          },
-        },
-      ],
-      edges: [
-        {
-          from: "reverseString-0",
-          out: "backwards",
-          to: "templater-0",
-          in: "backwards",
-        },
-        {
-          from: "templater-0",
-          out: "result",
-          to: "output-0",
-          in: "result",
-        },
-      ],
-    } satisfies GraphDescriptor
+  const myBoard = board(
+    { x: prompt.inputs.template },
+    { result: prompt.outputs.result }
   );
+  assert.deepEqual(serialize(myBoard), {
+    nodes: [
+      {
+        id: "input-0",
+        type: "input",
+        configuration: {
+          // TODO(aomarks) Schema
+        },
+      },
+      {
+        id: "output-0",
+        type: "output",
+        configuration: {
+          // TODO(aomarks) Schema
+        },
+      },
+      {
+        id: "templater-0",
+        type: "templater",
+        configuration: {
+          template: "The word {{forwards}} is {{backwards}} in reverse.",
+          forwards: "potato",
+        },
+      },
+      {
+        id: "reverseString-0",
+        type: "reverseString",
+        configuration: {
+          forwards: "potato",
+        },
+      },
+    ],
+    edges: [
+      {
+        from: "reverseString-0",
+        out: "backwards",
+        to: "templater-0",
+        in: "backwards",
+      },
+      {
+        from: "templater-0",
+        out: "result",
+        to: "output-0",
+        in: "result",
+      },
+    ],
+  } satisfies GraphDescriptor);
 });
