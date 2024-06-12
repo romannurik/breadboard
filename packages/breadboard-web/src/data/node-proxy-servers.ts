@@ -7,6 +7,8 @@ type SettingEntry = {
   value: string | number | boolean;
 };
 
+const PYTHON_NODES = ["runPython"];
+
 const createNodeProxyConfig = (entry: SettingEntry) => {
   const url = entry.name;
   if (!url) return null;
@@ -21,8 +23,14 @@ const createNodeProxyConfig = (entry: SettingEntry) => {
 
 export const addNodeProxyServerConfig = (
   config: RunConfig,
-  settings: SettingsStore | null
+  settings: SettingsStore | null,
+  proxyUrl?: string | undefined
 ): RunConfig => {
+  // TODO: Consolidate proxyUrl into settings.
+  const proxy = [] as HarnessProxyConfig[];
+  if (proxyUrl) {
+    proxy.push({ location: "python", url: proxyUrl, nodes: PYTHON_NODES });
+  }
   if (!settings) return config;
 
   const servers = settings.getSection(
@@ -32,9 +40,11 @@ export const addNodeProxyServerConfig = (
   const values = Array.from(servers.items.values());
   if (!values.length) return config;
 
-  const proxy = values
-    .map(createNodeProxyConfig)
-    .filter(Boolean) as HarnessProxyConfig[];
+  proxy.push(
+    ...(values
+      .map(createNodeProxyConfig)
+      .filter(Boolean) as HarnessProxyConfig[])
+  );
 
   if (!proxy.length) return config;
 
